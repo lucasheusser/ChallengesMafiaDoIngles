@@ -44,7 +44,7 @@ export function NavBar({ user, profile }: NavBarProps) {
       <nav className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/">
-              <h1 className="text-xl font-semibold text-foreground">English Daily Challenges</h1>
+              <h1 className="text-xl font-semibold text-foreground">Mafia Challenges</h1>
           </Link>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
@@ -66,7 +66,7 @@ export function NavBar({ user, profile }: NavBarProps) {
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-wrap justify-between items-center gap-4">
           <Link href={isTeacher ? "/teacher" : "/dashboard"}>
-            <h1 className="text-xl font-semibold text-foreground">English Daily Challenges</h1>
+            <h1 className="text-xl font-semibold text-foreground">Mafia Challenges</h1>
           </Link>
           
           <div className="flex flex-wrap items-center gap-6">

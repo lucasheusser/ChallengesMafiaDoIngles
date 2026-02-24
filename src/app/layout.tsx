@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "English Daily Challenges",
+  title: "Mafia Challenges",
   description: "Practice English with daily challenges and earn rewards",
 };
 

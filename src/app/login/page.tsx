@@ -108,7 +108,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-6">
       <Card className="w-full max-w-md border-border bg-card shadow-sm">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl font-semibold tracking-tight text-foreground">English Daily Challenges</CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-tight text-foreground">Mafia Challenges</CardTitle>
           <CardDescription className="text-sm">
             Practice English daily with clean, focused challenges.
           </CardDescription>

@@ -7,7 +7,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <nav className="border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-foreground">English Daily Challenges</h1>
+          <h1 className="text-xl font-semibold text-foreground">Mafia Challenges</h1>
           <div className="flex gap-4">
             <Link href="/login">
               <Button variant="ghost">Login</Button>
@@ -115,7 +115,7 @@ export default function HomePage() {
 
       <footer className="border-t bg-background mt-16">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>&copy; 2026 English Daily Challenges. All rights reserved.</p>
+          <p>&copy; 2026 Mafia Challenges. All rights reserved.</p>
         </div>
       </footer>
     </div>
