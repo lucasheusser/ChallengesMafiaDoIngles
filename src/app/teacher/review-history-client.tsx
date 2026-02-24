@@ -10,13 +10,8 @@ interface ReviewedSubmission {
   status: string
   feedback_text: string | null
   reviewed_at: string
-  challenges: {
-    title: string
-  }
-  profiles: {
-    id: string
-    full_name: string
-  }
+  challenges: any
+  profiles: any
 }
 
 interface ReviewHistoryClientProps {
@@ -28,24 +23,33 @@ export default function ReviewHistoryClient({ submissions }: ReviewHistoryClient
 
   // Get unique students from submissions
   const students = useMemo(() => {
-    const uniqueStudents = new Map()
+    const uniqueStudents = new Map<string, string>()
     submissions.forEach((submission) => {
-      const profileId = (submission.profiles as any)?.id
-      const fullName = (submission.profiles as any)?.full_name
-      if (profileId && fullName && !uniqueStudents.has(profileId)) {
-        uniqueStudents.set(profileId, fullName)
+      const profile = submission.profiles
+      if (profile && typeof profile === 'object') {
+        const profileId = String(profile.id || '')
+        const fullName = String(profile.full_name || 'Unknown Student')
+        if (profileId && !uniqueStudents.has(profileId)) {
+          uniqueStudents.set(profileId, fullName)
+        }
       }
     })
     return Array.from(uniqueStudents.entries()).map(([id, name]) => ({
       id,
-      name: name as string,
+      name,
     }))
   }, [submissions])
 
   // Filter submissions based on selected student
   const filteredSubmissions = useMemo(() => {
     if (!selectedStudent) return submissions
-    return submissions.filter((s) => (s.profiles as any)?.id === selectedStudent)
+    return submissions.filter((s) => {
+      const profile = s.profiles
+      if (profile && typeof profile === 'object') {
+        return String(profile.id || '') === selectedStudent
+      }
+      return false
+    })
   }, [submissions, selectedStudent])
 
   return (
@@ -61,68 +65,83 @@ export default function ReviewHistoryClient({ submissions }: ReviewHistoryClient
           >
             All Students ({submissions.length})
           </Button>
-          {students.map((student) => (
-            <Button
-              key={student.id}
-              variant={selectedStudent === student.id ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedStudent(student.id)}
-            >
-              {student.name} (
-              {submissions.filter((s) => (s.profiles as any)?.id === student.id).length})
-            </Button>
-          ))}
+          {students.map((student) => {
+            const count = submissions.filter((s) => {
+              const profile = s.profiles
+              if (profile && typeof profile === 'object') {
+                return String(profile.id || '') === student.id
+              }
+              return false
+            }).length
+            return (
+              <Button
+                key={student.id}
+                variant={selectedStudent === student.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedStudent(student.id)}
+              >
+                {student.name} ({count})
+              </Button>
+            )
+          })}
         </div>
       </div>
 
       {/* Submissions List */}
       <div className="space-y-4">
         {filteredSubmissions && filteredSubmissions.length > 0 ? (
-          filteredSubmissions.map((submission) => (
-            <Card key={submission.id} className="border-border bg-card">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">
-                      {(submission.challenges as any)?.title || "Challenge"}
-                    </CardTitle>
-                    <CardDescription>
-                      Student: {(submission.profiles as any)?.full_name || "Student"}
-                      <br />
-                      Reviewed:{" "}
-                      {new Date(submission.reviewed_at).toLocaleString("pt-BR", {
-                        timeZone: "America/Sao_Paulo",
-                      })}
-                    </CardDescription>
+          filteredSubmissions.map((submission) => {
+            const challenge = submission.challenges && typeof submission.challenges === 'object' 
+              ? submission.challenges.title || "Challenge"
+              : "Challenge"
+            const profile = submission.profiles && typeof submission.profiles === 'object'
+              ? submission.profiles.full_name || "Student"
+              : "Student"
+            
+            return (
+              <Card key={submission.id} className="border-border bg-card">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{challenge}</CardTitle>
+                      <CardDescription>
+                        Student: {profile}
+                        <br />
+                        Reviewed:{" "}
+                        {new Date(submission.reviewed_at).toLocaleString("pt-BR", {
+                          timeZone: "America/Sao_Paulo",
+                        })}
+                      </CardDescription>
+                    </div>
+                    <div>
+                      {submission.status === "approved" && (
+                        <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium dark:bg-green-950/40 dark:text-green-300">
+                          ✅ Approved
+                        </span>
+                      )}
+                      {submission.status === "rejected" && (
+                        <span className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium dark:bg-red-950/40 dark:text-red-300">
+                          ❌ Rejected
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    {submission.status === "approved" && (
-                      <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium dark:bg-green-950/40 dark:text-green-300">
-                        ✅ Approved
-                      </span>
-                    )}
-                    {submission.status === "rejected" && (
-                      <span className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium dark:bg-red-950/40 dark:text-red-300">
-                        ❌ Rejected
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {submission.feedback_text && (
-                  <p className="text-sm text-muted-foreground mb-3">
-                    <strong>Feedback:</strong> {submission.feedback_text}
-                  </p>
-                )}
-                <Link href={`/teacher/submission/${submission.id}`}>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))
+                </CardHeader>
+                <CardContent>
+                  {submission.feedback_text && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      <strong>Feedback:</strong> {submission.feedback_text}
+                    </p>
+                  )}
+                  <Link href={`/teacher/submission/${submission.id}`}>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )
+          })
         ) : (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
