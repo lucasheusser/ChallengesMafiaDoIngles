@@ -42,7 +42,7 @@ export default async function TeacherDashboard() {
 
   const { data: reviewedSubmissions } = await (supabase
     .from('submissions') as any)
-    .select('*, challenges:challenges!submissions_challenge_id_fkey(title, created_by), profiles:profiles!submissions_user_id_fkey(full_name)')
+    .select('*, challenges:challenges!submissions_challenge_id_fkey(title, created_by), profiles:profiles!submissions_user_id_fkey(id, full_name)')
     .in('status', ['approved', 'rejected'])
     .eq('reviewed_by', (profile as any).id)
     .order('reviewed_at', { ascending: false })
