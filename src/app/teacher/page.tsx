@@ -39,10 +39,21 @@ export default async function TeacherDashboard() {
     .eq('status', 'pending')
     .order('submitted_at', { ascending: true })
 
+  const { data: reviewedSubmissions } = await (supabase
+    .from('submissions') as any)
+    .select('*, challenges:challenges!submissions_challenge_id_fkey(title, created_by), profiles:profiles!submissions_user_id_fkey(full_name)')
+    .in('status', ['approved', 'rejected'])
+    .eq('reviewed_by', (profile as any).id)
+    .order('reviewed_at', { ascending: false })
+
   // Filter submissions for challenges created by this teacher (or show all if admin)
   const relevantSubmissions = (profile as any).role === 'admin' 
     ? pendingSubmissions
     : pendingSubmissions?.filter((s: any) => (s.challenges as any)?.created_by === (profile as any).id)
+
+  const relevantReviewedSubmissions = (profile as any).role === 'admin'
+    ? reviewedSubmissions
+    : reviewedSubmissions?.filter((s: any) => (s.challenges as any)?.created_by === (profile as any).id)
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +65,7 @@ export default async function TeacherDashboard() {
           <p className="text-muted-foreground">Manage challenges and review submissions</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card className="border-border bg-card">
             <CardHeader>
               <CardTitle className="text-2xl">📝 {myChallenges?.length || 0}</CardTitle>
@@ -66,6 +77,13 @@ export default async function TeacherDashboard() {
             <CardHeader>
               <CardTitle className="text-2xl">⏳ {relevantSubmissions?.length || 0}</CardTitle>
               <CardDescription>Pending Reviews</CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-2xl">✅ {relevantReviewedSubmissions?.length || 0}</CardTitle>
+              <CardDescription>Reviewed</CardDescription>
             </CardHeader>
           </Card>
         </div>
@@ -166,6 +184,62 @@ export default async function TeacherDashboard() {
                 </Card>
               )}
             </div>
+          </div>
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Review History</h2>
+          <div className="space-y-4">
+            {relevantReviewedSubmissions && relevantReviewedSubmissions.length > 0 ? (
+              relevantReviewedSubmissions.map((submission: any) => (
+                <Card key={submission.id} className="border-border bg-card">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">
+                          {(submission.challenges as any)?.title || 'Challenge'}
+                        </CardTitle>
+                        <CardDescription>
+                          Student: {(submission.profiles as any)?.full_name || 'Student'}
+                          <br />
+                          Reviewed: {new Date(submission.reviewed_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+                        </CardDescription>
+                      </div>
+                      <div>
+                        {submission.status === 'approved' && (
+                          <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium dark:bg-green-950/40 dark:text-green-300">
+                            ✅ Approved
+                          </span>
+                        )}
+                        {submission.status === 'rejected' && (
+                          <span className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium dark:bg-red-950/40 dark:text-red-300">
+                            ❌ Rejected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {submission.feedback_text && (
+                      <p className="text-sm text-muted-foreground mb-3">
+                        <strong>Feedback:</strong> {submission.feedback_text}
+                      </p>
+                    )}
+                    <Link href={`/teacher/submission/${submission.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No review history yet
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
