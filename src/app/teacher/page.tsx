@@ -4,6 +4,7 @@ import { NavBar } from "@/components/nav-bar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import ReviewHistoryClient from "./review-history-client"
 
 const formatDateBR = (date: string) =>
   new Date(date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
@@ -189,58 +190,7 @@ export default async function TeacherDashboard() {
 
         <div className="mt-12">
           <h2 className="text-xl font-semibold text-foreground mb-4">Review History</h2>
-          <div className="space-y-4">
-            {relevantReviewedSubmissions && relevantReviewedSubmissions.length > 0 ? (
-              relevantReviewedSubmissions.map((submission: any) => (
-                <Card key={submission.id} className="border-border bg-card">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">
-                          {(submission.challenges as any)?.title || 'Challenge'}
-                        </CardTitle>
-                        <CardDescription>
-                          Student: {(submission.profiles as any)?.full_name || 'Student'}
-                          <br />
-                          Reviewed: {new Date(submission.reviewed_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
-                        </CardDescription>
-                      </div>
-                      <div>
-                        {submission.status === 'approved' && (
-                          <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium dark:bg-green-950/40 dark:text-green-300">
-                            ✅ Approved
-                          </span>
-                        )}
-                        {submission.status === 'rejected' && (
-                          <span className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium dark:bg-red-950/40 dark:text-red-300">
-                            ❌ Rejected
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {submission.feedback_text && (
-                      <p className="text-sm text-muted-foreground mb-3">
-                        <strong>Feedback:</strong> {submission.feedback_text}
-                      </p>
-                    )}
-                    <Link href={`/teacher/submission/${submission.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card>
-                <CardContent className="py-8 text-center text-muted-foreground">
-                  No review history yet
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <ReviewHistoryClient submissions={relevantReviewedSubmissions || []} />
         </div>
       </main>
     </div>
