@@ -13,13 +13,20 @@ import { Database } from "@/types/supabase"
 
 type Challenge = Database['public']['Tables']['challenges']['Row']
 
+type ChallengeItem = {
+  id: string
+  text: string
+  options: string[]
+  answer_type: 'multiple_choice' | 'text_input'
+}
+
 export default function EditChallengeClient({ challenge }: { challenge: Challenge }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const contentJson = challenge.content_json as any
-  const [items, setItems] = useState(
+  const [items, setItems] = useState<ChallengeItem[]>(
     (contentJson.items || []).map((item: any) => ({
       ...item,
       answer_type: item.answer_type || 'multiple_choice'
@@ -31,19 +38,19 @@ export default function EditChallengeClient({ challenge }: { challenge: Challeng
   }
 
   const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id))
+    setItems(items.filter((item: ChallengeItem) => item.id !== id))
   }
 
   const updateItem = (id: string, text: string) => {
-    setItems(items.map(item => item.id === id ? { ...item, text } : item))
+    setItems(items.map((item: ChallengeItem) => item.id === id ? { ...item, text } : item))
   }
 
   const updateAnswerType = (id: string, answerType: 'multiple_choice' | 'text_input') => {
-    setItems(items.map(item => item.id === id ? { ...item, answer_type: answerType } : item))
+    setItems(items.map((item: ChallengeItem) => item.id === id ? { ...item, answer_type: answerType } : item))
   }
 
   const updateOption = (itemId: string, optionIndex: number, value: string) => {
-    setItems(items.map(item => {
+    setItems(items.map((item: ChallengeItem) => {
       if (item.id === itemId) {
         const newOptions = [...item.options]
         newOptions[optionIndex] = value
@@ -62,7 +69,7 @@ export default function EditChallengeClient({ challenge }: { challenge: Challeng
     
     const content_json = {
       instructions: formData.get('instructions'),
-      items: items.map(item => ({
+      items: items.map((item: ChallengeItem) => ({
         id: item.id,
         text: item.text,
         options: item.options,
