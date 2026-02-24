@@ -59,7 +59,7 @@ export function NavBar({ user, profile }: NavBarProps) {
     )
   }
 
-  const isTeacher = profile?.role === 'teacher' || profile?.role === 'admin'
+  const isTeacher = profile?.role === 'teacher' || profile?.role === 'underboss' || profile?.role === 'admin'
 
   return (
     <nav className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">

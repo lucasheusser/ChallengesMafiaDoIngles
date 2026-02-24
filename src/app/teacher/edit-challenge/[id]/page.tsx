@@ -17,7 +17,7 @@ export default async function EditChallengePage({ params }: { params: { id: stri
     .eq('user_id', user.id)
     .single()
 
-  if (!profile || (profile.role !== 'teacher' && profile.role !== 'admin')) {
+  if (!profile || (profile.role !== 'teacher' && profile.role !== 'underboss' && profile.role !== 'admin')) {
     redirect('/dashboard')
   }
 
@@ -31,8 +31,8 @@ export default async function EditChallengePage({ params }: { params: { id: stri
     redirect('/teacher')
   }
 
-  // Only allow editing own challenges (unless admin)
-  if (profile.role !== 'admin' && challenge.created_by !== profile.id) {
+  // Only allow editing own challenges (unless underboss or admin)
+  if (profile.role !== 'underboss' && profile.role !== 'admin' && challenge.created_by !== profile.id) {
     redirect('/teacher')
   }
 

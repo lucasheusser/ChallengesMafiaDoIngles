@@ -12,7 +12,7 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
-  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'teacher', 'admin')),
+  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'teacher', 'underboss', 'admin')),
   full_name TEXT,
   coins_total INTEGER NOT NULL DEFAULT 0,
   points_total INTEGER NOT NULL DEFAULT 0,
@@ -115,7 +115,7 @@ CREATE POLICY "Teachers can update profiles"
     EXISTS (
       SELECT 1 FROM public.profiles
       WHERE user_id = auth.uid()
-      AND role IN ('teacher', 'admin')
+      AND role IN ('teacher', 'underboss', 'admin')
     )
   )
   WITH CHECK (true);
@@ -141,7 +141,7 @@ CREATE POLICY "Published challenges are viewable by authenticated users"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role IN ('teacher', 'admin')
+      AND role IN ('teacher', 'underboss', 'admin')
     )
   );
 
@@ -153,11 +153,11 @@ CREATE POLICY "Teachers can create challenges"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role IN ('teacher', 'admin')
+      AND role IN ('teacher', 'underboss', 'admin')
     )
   );
 
--- Teachers can update their own challenges, admins can update any
+-- Teachers can update their own challenges, underboss/admins can update any
 CREATE POLICY "Teachers can update own challenges"
   ON public.challenges FOR UPDATE
   TO authenticated
@@ -169,7 +169,7 @@ CREATE POLICY "Teachers can update own challenges"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role = 'admin'
+      AND role IN ('underboss', 'admin')
     )
   )
   WITH CHECK (
@@ -180,14 +180,14 @@ CREATE POLICY "Teachers can update own challenges"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role = 'admin'
+      AND role IN ('underboss', 'admin')
     )
   );
 
 -- SUBMISSIONS POLICIES
 -- Students can read their own submissions
 -- Teachers can read submissions for challenges they created
--- Admins can read all submissions
+-- Underboss and admins can read all submissions
 CREATE POLICY "Users can view relevant submissions"
   ON public.submissions FOR SELECT
   TO authenticated
@@ -206,7 +206,7 @@ CREATE POLICY "Users can view relevant submissions"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role = 'admin'
+      AND role IN ('underboss', 'admin')
     )
   );
 
@@ -221,7 +221,7 @@ CREATE POLICY "Students can submit challenges"
   );
 
 -- Teachers can update submissions (for review) on their challenges
--- Admins can update any submission
+-- Underboss and admins can update any submission
 CREATE POLICY "Teachers can review submissions"
   ON public.submissions FOR UPDATE
   TO authenticated
@@ -236,7 +236,7 @@ CREATE POLICY "Teachers can review submissions"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role = 'admin'
+      AND role IN ('underboss', 'admin')
     )
   )
   WITH CHECK (
@@ -250,7 +250,7 @@ CREATE POLICY "Teachers can review submissions"
     EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE user_id = auth.uid() 
-      AND role = 'admin'
+      AND role IN ('underboss', 'admin')
     )
   );
 

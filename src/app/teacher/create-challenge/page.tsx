@@ -18,7 +18,7 @@ export default async function CreateChallengePage() {
     .eq('user_id', user.id)
     .single()
 
-  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'admin') {
+  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'underboss' && (profile as any)?.role !== 'admin') {
     redirect('/dashboard')
   }
 

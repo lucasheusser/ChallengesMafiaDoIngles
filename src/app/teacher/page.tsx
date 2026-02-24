@@ -24,15 +24,17 @@ export default async function TeacherDashboard() {
     .eq('user_id', user.id)
     .single()
 
-  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'admin') {
+  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'underboss' && (profile as any)?.role !== 'admin') {
     redirect('/dashboard')
   }
 
-  const { data: myChallenges } = await (supabase
-    .from('challenges') as any)
-    .select('*')
-    .eq('created_by', (profile as any).id)
-    .order('created_at', { ascending: false })
+  // Underboss and admin can see all challenges, teachers see only their own
+  const challengesQuery = (supabase.from('challenges') as any).select('*')
+  const { data: myChallenges } = await (
+    (profile as any).role === 'underboss' || (profile as any).role === 'admin'
+      ? challengesQuery
+      : challengesQuery.eq('created_by', (profile as any).id)
+  ).order('created_at', { ascending: false })
 
   const { data: pendingSubmissions } = await (supabase
     .from('submissions') as any)
@@ -47,12 +49,12 @@ export default async function TeacherDashboard() {
     .eq('reviewed_by', (profile as any).id)
     .order('reviewed_at', { ascending: false })
 
-  // Filter submissions for challenges created by this teacher (or show all if admin)
-  const relevantSubmissions = (profile as any).role === 'admin' 
+  // Filter submissions for challenges created by this teacher (or show all if underboss/admin)
+  const relevantSubmissions = (profile as any).role === 'underboss' || (profile as any).role === 'admin' 
     ? pendingSubmissions
     : pendingSubmissions?.filter((s: any) => (s.challenges as any)?.created_by === (profile as any).id)
 
-  const relevantReviewedSubmissions = (profile as any).role === 'admin'
+  const relevantReviewedSubmissions = (profile as any).role === 'underboss' || (profile as any).role === 'admin'
     ? reviewedSubmissions
     : reviewedSubmissions?.filter((s: any) => (s.challenges as any)?.created_by === (profile as any).id)
 

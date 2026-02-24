@@ -18,7 +18,7 @@ export default async function SubmissionReviewPage({ params }: { params: { id: s
     .eq('user_id', user.id)
     .single()
 
-  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'admin') {
+  if ((profile as any)?.role !== 'teacher' && (profile as any)?.role !== 'underboss' && (profile as any)?.role !== 'admin') {
     redirect('/dashboard')
   }
 
@@ -36,7 +36,7 @@ export default async function SubmissionReviewPage({ params }: { params: { id: s
   const student = submission.profiles as any
 
   // Check authorization
-  if ((profile as any).role !== 'admin' && (challenge as any).created_by !== (profile as any).id) {
+  if ((profile as any).role !== 'underboss' && (profile as any).role !== 'admin' && (challenge as any).created_by !== (profile as any).id) {
     redirect('/teacher')
   }
 
