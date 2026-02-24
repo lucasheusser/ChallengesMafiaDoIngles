@@ -44,6 +44,15 @@ const getDateRange = (filter: FilterType) => {
 const formatDateBR = (date: string) =>
   new Date(date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 
+const getTodayBrazil = () => {
+  const now = new Date()
+  const brazilDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+  const year = brazilDate.getFullYear()
+  const month = String(brazilDate.getMonth() + 1).padStart(2, '0')
+  const day = String(brazilDate.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -69,6 +78,7 @@ export default async function DashboardPage({
     .from('challenges') as any)
     .select('*')
     .eq('status', 'published')
+    .lte('publish_date', getTodayBrazil())
     .order('publish_date', { ascending: false })
 
   if (range) {
