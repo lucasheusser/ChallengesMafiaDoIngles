@@ -79,7 +79,7 @@ export default async function DashboardPage({
     .select('*')
     .eq('status', 'published')
     .lte('publish_date', getTodayBrazil())
-    .order('publish_date', { ascending: false })
+    .order('created_at', { ascending: false })
 
   if (range) {
     challengesQuery = challengesQuery
