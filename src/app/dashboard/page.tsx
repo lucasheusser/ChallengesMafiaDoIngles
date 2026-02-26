@@ -56,10 +56,12 @@ const getTodayBrazil = () => {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: { filter?: string }
+  searchParams?: Promise<{ filter?: string }>
 }) {
+  const resolvedSearchParams = await searchParams
   const supabase = await createClient()
-  const filter = (searchParams?.filter as FilterType) || 'all'
+  const requestedFilter = resolvedSearchParams?.filter
+  const filter: FilterType = requestedFilter === 'week' || requestedFilter === 'month' || requestedFilter === 'year' ? requestedFilter : 'all'
   const range = getDateRange(filter)
   
   const { data: { user } } = await supabase.auth.getUser()

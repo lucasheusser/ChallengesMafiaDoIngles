@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { NavBar } from "@/components/nav-bar"
 import ChallengeClient from "./challenge-client"
 
-export default async function ChallengePage({ params }: { params: { id: string } }) {
+export default async function ChallengePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -21,7 +22,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
   const { data: challenge } = await (supabase
     .from('challenges') as any)
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('status', 'published')
     .single()
 

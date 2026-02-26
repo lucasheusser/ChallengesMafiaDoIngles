@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { NavBar } from "@/components/nav-bar"
 import EditChallengeClient from "./edit-challenge-client"
 
-export default async function EditChallengePage({ params }: { params: { id: string } }) {
+export default async function EditChallengePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -24,7 +25,7 @@ export default async function EditChallengePage({ params }: { params: { id: stri
   const { data: challenge } = await (supabase
     .from('challenges') as any)
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!challenge) {

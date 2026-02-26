@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { NavBar } from "@/components/nav-bar"
 import SubmissionReviewClient from "./submission-review-client"
 
-export default async function SubmissionReviewPage({ params }: { params: { id: string } }) {
+export default async function SubmissionReviewPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -25,7 +26,7 @@ export default async function SubmissionReviewPage({ params }: { params: { id: s
   const { data: submission } = await (supabase
     .from('submissions') as any)
     .select('*, challenges:challenges!submissions_challenge_id_fkey(*), profiles:profiles!submissions_user_id_fkey(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!submission) {
