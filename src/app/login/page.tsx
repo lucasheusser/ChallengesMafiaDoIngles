@@ -15,7 +15,6 @@ import { toast } from "@/components/ui/use-toast"
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
 
   const loginForm = useForm<LoginInput>({
@@ -38,6 +37,7 @@ export default function LoginPage() {
   async function onLogin(data: LoginInput) {
     setIsLoading(true)
     try {
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -66,6 +66,7 @@ export default function LoginPage() {
   async function onRegister(data: RegisterInput) {
     setIsLoading(true)
     try {
+      const supabase = createClient()
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
